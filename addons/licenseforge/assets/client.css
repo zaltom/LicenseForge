@@ -1,0 +1,179 @@
+/*!
+ * LicenseForge - client area styles.
+ *
+ * Loaded on the two pages that render licensing: a customer's product details
+ * page and their services list.
+ *
+ * Everything is scoped under .lf-panel (or the .lfg-svc-* classes the script
+ * injects into the services table) because client themes are arbitrary and the
+ * module must not restyle the site around it. For the same reason the panel
+ * resets the few properties themes most often set globally - text-align,
+ * font-size, heading styles - rather than assuming a baseline.
+ *
+ * Its own palette, prefixed --lf-, is declared on .lf-panel rather than :root
+ * so a theme's variables are never overwritten.
+ */
+.lf-panel {
+
+    --lf-plate:#1f2833; --lf-plate-ink:#e8edf2; --lf-plate-dim:#868f99;
+    --lf-ink:#31404f; --lf-quiet:#6b7785; --lf-rule:#e3e6ea;
+
+    --lf-surface:#fff; --lf-head:#f7f8f9;
+    --lf-signal:#348460;
+    --lf-signal-plate:#479e77;
+    --lf-signal-mark:#3d9970;
+    --lf-warn-bg:#fdf6e3; --lf-warn-ink:#8a6d3b; --lf-warn-line:#f0e2bd;
+    --lf-ok-bg:#eef7f1; --lf-ok-ink:#2f6b4f; --lf-ok-line:#cfe6d8;
+    --lf-bad-bg:#fdf0ef; --lf-bad-ink:#a94442; --lf-bad-line:#f1d3d1;
+    --lf-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    text-align:left; color:var(--lf-ink); font-size:14px; line-height:1.5;
+}
+.lf-panel *, .lf-panel *::before, .lf-panel *::after { box-sizing:border-box; }
+.lf-panel p { margin:0 0 10px; text-align:left; color:inherit; font-size:inherit; }
+.lf-panel p:last-child { margin-bottom:0; }
+
+/* Card: the container for each section of the panel. */
+.lf-panel .lf-card { background:var(--lf-surface); border:1px solid var(--lf-rule); border-radius:5px;
+    margin:0 0 16px; overflow:hidden; }
+.lf-panel .lf-card:last-child { margin-bottom:0; }
+.lf-panel .lf-card-head { display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--lf-head); border-bottom:1px solid var(--lf-rule); padding:11px 16px; }
+
+.lf-panel .lf-card-title { margin:0; padding:0; border:0; font-size:15px; font-weight:600; line-height:1.3;
+    color:var(--lf-ink); text-align:left; letter-spacing:0; text-transform:none; }
+.lf-panel .lf-card-body { padding:16px; }
+
+/* Status pill, mirroring the license states the admin console shows. */
+.lf-panel .lf-status { display:inline-block; font-size:11px; font-weight:600; letter-spacing:.06em;
+    text-transform:uppercase; padding:3px 9px; border-radius:3px; white-space:nowrap;
+    background:#eceff1; color:#5a6774; border:1px solid #dfe3e6; }
+.lf-panel .lf-status--success { background:var(--lf-ok-bg); color:var(--lf-ok-ink); border-color:var(--lf-ok-line); }
+.lf-panel .lf-status--warning { background:var(--lf-warn-bg); color:var(--lf-warn-ink); border-color:var(--lf-warn-line); }
+.lf-panel .lf-status--danger  { background:var(--lf-bad-bg); color:var(--lf-bad-ink); border-color:var(--lf-bad-line); }
+.lf-panel .lf-status--info    { background:#eef3f8; color:#31607f; border-color:#d4e2ee; }
+
+/* Notice block: an explanation attached to a state, not a state itself. */
+.lf-panel .lf-note { padding:11px 14px; border:1px solid; border-radius:4px; margin:0 0 14px; font-size:14px; }
+.lf-panel .lf-note--success { background:var(--lf-ok-bg); color:var(--lf-ok-ink); border-color:var(--lf-ok-line); }
+.lf-panel .lf-note--warning { background:var(--lf-warn-bg); color:var(--lf-warn-ink); border-color:var(--lf-warn-line); }
+.lf-panel .lf-note--danger  { background:var(--lf-bad-bg); color:var(--lf-bad-ink); border-color:var(--lf-bad-line); }
+.lf-panel .lf-note--info    { background:#eef3f8; color:#31607f; border-color:#d4e2ee; }
+
+.lf-panel .lf-eyebrow { font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--lf-quiet); margin:0 0 5px; text-align:left; }
+
+/*
+ * The key plate. Dark, so the license key reads as the one thing on the page
+ * to be copied; user-select:all on the key means a single click takes the whole
+ * value even where the clipboard API is unavailable.
+ */
+.lf-panel .lf-plate { background:var(--lf-plate); border-radius:4px; padding:16px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+
+.lf-panel .lf-plate-key { font-family:var(--lf-mono); font-size:clamp(15px,2.6vw,21px); font-weight:600;
+    color:var(--lf-plate-ink); letter-spacing:.06em; margin:0; display:block; line-height:1.5;
+    user-select:all; overflow-wrap:break-word; text-align:left; }
+
+.lf-panel .lf-block { padding:0 1px; }
+.lf-panel .lf-sep { color:var(--lf-plate-dim); padding:0 5px; }
+
+/*
+ * Buttons. Declared in full rather than inheriting, since a client theme's own
+ * button styles cannot be relied on to exist or to be legible on the plate.
+ */
+.lf-panel .lf-btn { display:inline-block; font-family:inherit; font-size:13px; font-weight:600;
+    line-height:1.4; letter-spacing:.02em; text-align:center; text-decoration:none; white-space:nowrap;
+    vertical-align:middle; cursor:pointer; padding:8px 15px; border-radius:3px;
+    border:1px solid #ccd2d8; background:#fff; color:var(--lf-ink);
+    transition:background-color .15s ease, border-color .15s ease, color .15s ease; }
+.lf-panel .lf-btn:hover { background:#f2f4f6; border-color:#b9c1c9; color:var(--lf-ink); text-decoration:none; }
+.lf-panel .lf-btn:focus-visible { outline:2px solid var(--lf-signal-mark); outline-offset:2px; }
+.lf-panel .lf-btn--sm { font-size:12px; padding:4px 11px; }
+
+.lf-panel .lf-btn--onplate { background:transparent; border-color:#3a4654; color:var(--lf-plate-ink); }
+.lf-panel .lf-btn--onplate:hover { background:#2b3745; border-color:#4a5766; color:var(--lf-plate-ink); }
+
+.lf-panel .lf-btn--onplate.is-done { color:var(--lf-signal-plate); border-color:var(--lf-signal-plate); background:transparent; }
+
+/* Readout: the licence's facts - expiry, activations, version - in cells that
+   wrap to two columns on a phone. */
+.lf-panel .lf-readout { display:flex; flex-wrap:wrap; border-top:1px solid var(--lf-rule); margin-top:18px; }
+.lf-panel .lf-cell { flex:1 1 25%; min-width:132px; padding:14px 16px 14px 0; }
+.lf-panel .lf-value { font-family:var(--lf-mono); font-size:15px; color:var(--lf-ink); line-height:1.35;
+    overflow-wrap:break-word; }
+.lf-panel .lf-sub { font-size:12px; color:var(--lf-quiet); margin-top:3px; }
+.lf-panel .lf-sub-up { color:var(--lf-signal); font-weight:600; }
+
+/* Activation slots, drawn as bars so the ratio reads without counting. */
+.lf-panel .lf-slots { display:flex; gap:4px; margin-top:7px; }
+.lf-panel .lf-slot { width:18px; height:5px; border-radius:2px; background:var(--lf-rule); }
+.lf-panel .lf-slot.is-used { background:var(--lf-signal-mark); }
+
+.lf-panel .lf-tags { margin:0; padding:14px 0 0; border-top:1px solid var(--lf-rule); }
+.lf-panel .lf-tag { display:inline-block; font-family:var(--lf-mono); font-size:12px; color:#4a5560;
+    background:#f4f6f8; border:1px solid var(--lf-rule); border-radius:3px;
+    padding:2px 8px; margin:0 4px 4px 0; }
+
+/*
+ * Installation table. Cells hold hostnames and timestamps that must not wrap
+ * mid-value, so the table scrolls sideways inside .lf-scroll rather than
+ * reflowing - except the first column, which is prose.
+ */
+.lf-panel .lf-scroll { position:relative; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.lf-panel .lf-table { width:100%; border:0; border-collapse:collapse; border-spacing:0; margin:0;
+    background:transparent; font-size:14px; color:var(--lf-ink); }
+.lf-panel .lf-table th, .lf-panel .lf-table td { padding:11px 16px; text-align:left; vertical-align:middle;
+    border:0; border-bottom:1px solid var(--lf-rule); white-space:nowrap; }
+.lf-panel .lf-table tbody tr:last-child th, .lf-panel .lf-table tbody tr:last-child td { border-bottom:0; }
+.lf-panel .lf-table th { font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--lf-quiet); }
+
+.lf-panel .lf-table td:first-child, .lf-panel .lf-table th:first-child { white-space:normal; min-width:160px; }
+.lf-panel .lf-table .lf-right { text-align:right; }
+.lf-panel .lf-host { font-family:var(--lf-mono); font-size:14px; color:var(--lf-ink); overflow-wrap:break-word; }
+.lf-panel .lf-meta { font-size:12px; color:var(--lf-quiet); }
+
+.lf-panel .lf-past td, .lf-panel .lf-past .lf-host { color:var(--lf-quiet); }
+.lf-panel .lf-inline-form { display:inline; margin:0; padding:0; }
+
+/* Visually hidden, still read aloud. */
+.lf-panel .lf-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+@media (max-width:767px) {
+
+    .lf-panel .lf-cell { flex-basis:50%; min-width:0; padding:12px 12px 12px 0; }
+    .lf-panel .lf-plate { padding:14px; }
+    .lf-panel .lf-value { font-size:14px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .lf-panel .lf-btn { transition:none; }
+}
+
+.lf-panel .lfg-mb0 { margin-bottom:0; }
+.lf-panel .lfg-m0 { margin:0; }
+
+/*
+ * Services list.
+ *
+ * Injected by client-panel.js into WHMCS's own services table, so these sit
+ * outside .lf-panel and carry the module's admin prefix. Deliberately quiet:
+ * that page is a list of products, and the key is a detail on a row rather
+ * than the subject of the page.
+ */
+.lfg-svc-key { margin-top:3px; display:block; line-height:1.5; text-align:left; }
+
+.lfg-svc-key code { display:inline-block;
+    font-family: ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+    font-size:12px; letter-spacing:.04em; color:#31404f; background:#f4f6f8;
+    border:1px solid #e3e6ea; border-radius:3px; padding:1px 6px;
+    white-space:nowrap; vertical-align:middle; }
+.lfg-svc-copy { display:inline-block; font:600 11px/1.4 inherit; color:#6c7784;
+    background:transparent; border:0; padding:2px 5px; margin-left:2px;
+    cursor:pointer; border-radius:3px; vertical-align:middle; }
+.lfg-svc-copy:hover { color:#31404f; background:#eef0f2; }
+.lfg-svc-copy:focus-visible { outline:2px solid #3d9970; outline-offset:1px; }
+.lfg-svc-copy.is-done { color:#348460; }
+
+.lfg-svc-warn { font-size:11px; color:#8a6d3b; margin-left:4px; vertical-align:middle; }

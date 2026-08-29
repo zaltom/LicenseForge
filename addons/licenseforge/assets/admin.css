@@ -1,0 +1,598 @@
+/*!
+ * LicenseForge - admin console styles.
+ *
+ * Loaded on the addon's own admin pages, inside the WHMCS admin theme, which
+ * already supplies Bootstrap 3. This file adds the module's components and
+ * overrides a few Bootstrap defaults.
+ *
+ * Naming
+ *   .lfg-*      Module-owned class; every selector here is prefixed so nothing
+ *               collides with the theme or another addon.
+ *   .lfg-x--y   Modifier on the .lfg-x component.
+ *   .is-*       Transient state, set by markup or by assets/admin.js.
+ *
+ * Scope
+ *   Bootstrap overrides - buttons, inputs, alerts, panels - are confined to
+ *   .lfg-console, the wrapper every page template opens around its content.
+ *   The addon's pages still carry the WHMCS sidebar, navbar and footer, and
+ *   without that scope the surrounding theme would be restyled too.
+ *
+ * Colour lives entirely in the custom properties below, so an installation can
+ * restyle the console by overriding one block.
+ */
+/*
+ * Palette and type tokens.
+ *
+ * On :root rather than a wrapper: cards are rendered as siblings of the
+ * navigation rather than nested in one container, so anything scoped to a
+ * wrapper would leave much of the page resolving these to nothing.
+ *
+ * Status colours are chosen for contrast, not decoration. Each clears WCAG AA
+ * 4.5:1 against its own pill background, and --lfg-quiet clears it on white.
+ * Pills render at 11px bold, which WCAG counts as small text, so the stricter
+ * ratio applies.
+ *
+ * The three grounds must stay three: --canvas behind the cards, --inset inside
+ * them for table headings, panel footers and resting fields, --surface for the
+ * card. A shade between canvas and inset makes a footer read as a hole.
+ */
+:root {
+
+    --lfg-ink:#0f172a; --lfg-ink-soft:#334155; --lfg-quiet:#64748b;
+    --lfg-rule:#e6ebf1; --lfg-rule-soft:#eef2f6;
+
+    --lfg-surface:#fff; --lfg-canvas:#eceff4; --lfg-inset:#f6f8fa;
+
+    --lfg-accent:#047857; --lfg-accent-bright:#059669; --lfg-accent-tint:#ecfdf5;
+    --lfg-accent-edge:#c7ecdc;
+
+    --lfg-ok:#0f7a52; --lfg-wait:#2f6f9f; --lfg-warn:#8a6412; --lfg-lapsed:#786e5d;
+    --lfg-bad:#b0413e; --lfg-done:#5a6472; --lfg-past:#6d5fa0;
+
+    --lfg-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    --lfg-lift:0 1px 2px rgba(15,23,42,.05);
+    --lfg-lift-lg:0 8px 24px -6px rgba(15,23,42,.14);
+
+    --lfg-radius:10px; --lfg-radius-sm:7px; --lfg-radius-pill:999px;
+}
+
+/*
+ * Console shell.
+ *
+ * The wrapper each page template opens around its content, and the scope for
+ * every Bootstrap override below. It paints its own canvas: WHMCS renders
+ * addon output inside a white .contentarea, so without this the white cards
+ * would have no ground and the page would rest entirely on hairline borders.
+ */
+.lfg-console { color:var(--lfg-ink); font-size:13px; line-height:1.5;
+    background:var(--lfg-canvas); padding:18px; border-radius:var(--lfg-radius); }
+.lfg-console a { color:var(--lfg-accent); }
+.lfg-console a:hover { color:var(--lfg-accent-bright); }
+.lfg-console :focus-visible { outline:2px solid var(--lfg-accent-bright); outline-offset:2px;
+    border-radius:3px; }
+.lfg-wrap { margin-bottom:20px; }
+.lfg-page { display:block; }
+
+/*
+ * Settings layout: sections listed on the left, the chosen one on the right.
+ *
+ * The list is sticky - moving between sections must not require scrolling back.
+ * `is-tabbed` is added by assets/admin.js only once the sections are found, so
+ * without JavaScript nothing is hidden and the page stays one long form.
+ *
+ * Hidden sections keep their fields in the document and are not disabled, so
+ * all ten still post. They commit through one button, and a section that
+ * stopped submitting out of view would silently reset untouched settings.
+ */
+.lfg-settings { display:flex; align-items:flex-start; gap:20px; }
+.lfg-settings-main { flex:1 1 auto; min-width:0; }
+
+.lfg-sidenav { position:sticky; top:12px; flex:0 0 216px; display:flex; flex-direction:column;
+    gap:1px; padding:8px; background:var(--lfg-surface); border:1px solid var(--lfg-rule);
+    border-radius:var(--lfg-radius); box-shadow:var(--lfg-lift); }
+.lfg-sidenav a { padding:7px 11px; font-size:12.5px; font-weight:500; color:var(--lfg-quiet);
+    text-decoration:none; border-radius:6px; }
+.lfg-sidenav a:hover { color:var(--lfg-ink); background:var(--lfg-inset); text-decoration:none; }
+
+.lfg-sidenav a.is-active { color:var(--lfg-accent); font-weight:600;
+    background:var(--lfg-accent-tint); }
+
+.lfg-sidenav-split { height:1px; margin:7px 11px; background:var(--lfg-rule); }
+
+.lfg-settings.is-tabbed .lfg-settings-main > .lfg-card[id^="set-"],
+.lfg-settings.is-tabbed form > .lfg-card[id^="set-"] { display:none; }
+.lfg-settings.is-tabbed .lfg-card[id^="set-"].is-current { display:block; }
+
+.lfg-settings.is-tabbed .lfg-save-bar.is-hidden { display:none; }
+
+@media (max-width:900px) {
+    .lfg-settings { flex-direction:column; }
+    .lfg-sidenav { position:static; flex:1 1 auto; width:100%; flex-direction:row;
+        flex-wrap:wrap; }
+    .lfg-sidenav-split { display:none; }
+}
+
+/* Page masthead: the name of the page being viewed, taken from the active
+   tab so the two cannot disagree. */
+.lfg-masthead { display:flex; align-items:flex-end; justify-content:space-between;
+    gap:16px; flex-wrap:wrap; margin:0 0 14px; }
+.lfg-masthead-title { margin:0; font-size:22px; font-weight:700; letter-spacing:-.02em;
+    color:var(--lfg-ink); line-height:1.2; }
+.lfg-masthead-crumb { font-size:12px; font-weight:600; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--lfg-quiet); margin:0 0 4px; }
+
+.lfg-eyebrow { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--lfg-quiet); margin:0 0 5px; }
+
+/* Monospace for anything compared character by character - keys, hashes,
+   fingerprints, IP addresses. A proportional face makes those ambiguous. */
+.lfg-key, .lfg-data { font-family:var(--lfg-mono); font-size:12px; letter-spacing:.01em; }
+.lfg-key { font-weight:500; }
+.lfg-muted { color:var(--lfg-quiet); }
+.lfg-section { margin-bottom:18px; }
+
+/* Tabular figures align a column of numbers without forcing monospace, which
+   would read as raw data rather than as a quantity. */
+.lfg-num { text-align:right; font-variant-numeric:tabular-nums; }
+
+/*
+ * Status pills - one colour per licence state.
+ *
+ * A dedicated scale rather than Bootstrap's contextual classes, which offer
+ * four colours for the seven states this module distinguishes; reusing them
+ * drew "suspended" and "expired" identically. Each pill carries a dot as well
+ * as a tint, so state survives greyscale and the commoner colour blindness.
+ */
+.lfg-pill { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600;
+    letter-spacing:.03em; text-transform:uppercase; padding:2px 9px 2px 8px;
+    border-radius:var(--lfg-radius-pill); white-space:nowrap; line-height:17px;
+    border:1px solid #e2e6ea; background:#f1f4f7; color:#5d6875; }
+.lfg-pill::before { content:""; width:5px; height:5px; border-radius:50%; flex:0 0 5px;
+    background:currentColor; }
+.lfg-pill--ok     { background:var(--lfg-accent-tint); color:var(--lfg-ok);     border-color:var(--lfg-accent-edge); }
+.lfg-pill--wait   { background:#eef4f9; color:var(--lfg-wait);   border-color:#d3e2ee; }
+.lfg-pill--warn   { background:#fdf6e6; color:var(--lfg-warn);   border-color:#f0e3c2; }
+.lfg-pill--lapsed { background:#f6f4f0; color:var(--lfg-lapsed); border-color:#e6e0d5; }
+.lfg-pill--bad    { background:#fbeeed; color:var(--lfg-bad);    border-color:#f0d5d3; }
+.lfg-pill--done   { background:#f1f4f7; color:var(--lfg-done);   border-color:#e0e4e8; }
+.lfg-pill--past   { background:#f2f0f8; color:var(--lfg-past);   border-color:#dedaee; }
+
+/* Card: the standard container for a section. */
+.lfg-card { background:var(--lfg-surface); border:1px solid var(--lfg-rule);
+    border-radius:var(--lfg-radius); box-shadow:var(--lfg-lift); margin-bottom:18px; }
+
+.lfg-card > .lfg-card-head { display:flex; align-items:flex-start; justify-content:space-between;
+    gap:12px; flex-wrap:wrap; padding:14px 16px; border-bottom:1px solid var(--lfg-rule-soft); }
+.lfg-card-title { margin:0; font-size:14px; font-weight:650; color:var(--lfg-ink);
+    letter-spacing:-.01em; }
+.lfg-card-note { font-size:12px; color:var(--lfg-quiet); font-weight:400; }
+a.lfg-card-note { color:var(--lfg-accent); font-weight:500; }
+.lfg-card-body { padding:16px; }
+
+/* Divider inside a card body, run to the card's edges so it reads as a join
+   between sections rather than a break in a paragraph. */
+.lfg-card-body > hr, .lfg-card > .panel-body > hr {
+    margin:16px -16px; border:0; border-top:1px solid var(--lfg-rule-soft); }
+
+/*
+ * Bootstrap panel parts, restyled to match .lfg-card - some views build a card
+ * from panel markup and others from the classes above.
+ *
+ * Left as blocks rather than flex: .pull-right is used inside these headings,
+ * and floats do not survive blockification of flex items.
+ *
+ * The heading's title and its gloss sit on one line; the gloss strings already
+ * open with an em dash. Matched on .lfg-muted rather than on position, because
+ * a "first span after the title" rule also caught the status pills on the
+ * licence detail page.
+ */
+.lfg-card > .panel-heading { padding:14px 16px; font-size:14px; color:var(--lfg-ink);
+    background:transparent; border:0; border-bottom:1px solid var(--lfg-rule-soft);
+    border-radius:var(--lfg-radius) var(--lfg-radius) 0 0; }
+.lfg-card > .panel-heading strong { font-weight:650; letter-spacing:-.01em; }
+
+.lfg-card > .panel-heading .lfg-key { font-size:16px; letter-spacing:0; margin-right:4px; }
+.lfg-card > .panel-heading .lfg-pill { vertical-align:2px; margin-right:2px; }
+.lfg-card > .panel-heading .lfg-muted { font-size:12px; font-weight:400; }
+.lfg-card > .panel-footer { padding:12px 16px; font-size:12px; color:var(--lfg-quiet);
+    background:var(--lfg-inset); border:0; border-top:1px solid var(--lfg-rule-soft);
+    border-radius:0 0 var(--lfg-radius) var(--lfg-radius); }
+.lfg-card > .panel-body { padding:16px; }
+
+/*
+ * Data tables. Dense, separated by rules rather than zebra striping, which
+ * competes with the status pills for attention.
+ */
+.lfg-table { width:100%; margin:0; background:transparent; border-collapse:collapse; }
+.lfg-table th, .lfg-table td { padding:11px 16px; vertical-align:middle; font-size:13px;
+    border:0; border-bottom:1px solid var(--lfg-rule-soft); }
+
+/*
+ * Column headings stay in view while a long list scrolls. The rule beneath is
+ * an inset shadow, not a border: this table collapses its borders, and a
+ * collapsed border belongs to the table rather than the cell, so it does not
+ * travel with a sticky cell.
+ */
+.lfg-table thead th { position:sticky; top:0; z-index:2;
+    padding-top:9px; padding-bottom:9px; background:var(--lfg-inset);
+    font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--lfg-quiet); border-bottom:0;
+    box-shadow:inset 0 -1px 0 var(--lfg-rule-soft); white-space:nowrap; }
+.lfg-table thead th a { color:inherit; text-decoration:none; }
+.lfg-table thead th a:hover { color:var(--lfg-ink); }
+
+/*
+ * Row labels in a key/value table - the licence detail page is largely these.
+ * Without this they inherit the browser's centred, bold <th> and leave the
+ * values with no shared edge to run down.
+ */
+.lfg-table tbody th { width:35%; font-size:12.5px; font-weight:500; text-align:left;
+    color:var(--lfg-quiet); background:var(--lfg-inset); vertical-align:top; }
+.lfg-table tbody tr:hover th { background:#f1f4f7; }
+
+.lfg-table tbody tr:last-child th:first-child { border-bottom-left-radius:var(--lfg-radius); }
+
+/* Several tables state "nothing here" with one spanning cell; matched on the
+   attribute so they get the roomy treatment without rewriting each template. */
+.lfg-table td[colspan].lfg-muted { padding:30px 16px; text-align:center; font-size:13px; }
+
+.lfg-table tbody tr:last-child td { border-bottom:0; }
+.lfg-table tbody tr:hover { background:var(--lfg-inset); }
+.lfg-table td a { color:var(--lfg-accent); }
+
+.lfg-console .lfg-table tbody tr.warning { background:#fdf9ef; }
+.lfg-console .lfg-table tbody tr.warning:hover { background:#fcf5e4; }
+
+/*
+ * Sortable column headings. The arrow states which column orders the list and
+ * in which direction, and shows faintly on hover elsewhere to advertise that
+ * those columns sort at all. Drawn with borders so it inherits the text colour
+ * and needs no icon font.
+ */
+.lfg-sort { display:inline-flex; align-items:center; gap:5px; }
+.lfg-sort::after { content:""; width:0; height:0; opacity:0;
+    border-left:3.5px solid transparent; border-right:3.5px solid transparent;
+    border-bottom:4px solid currentColor; transition:opacity .12s ease; }
+.lfg-sort:hover::after { opacity:.35; }
+.lfg-sort.is-asc::after, .lfg-sort.is-desc::after { opacity:1; }
+
+.lfg-sort.is-desc::after { transform:rotate(180deg); }
+.lfg-table thead th .lfg-sort.is-asc, .lfg-table thead th .lfg-sort.is-desc { color:var(--lfg-ink); }
+
+/*
+ * Action cells. Each control is its own form - they post different things - and
+ * some carry an input as well as a button. Each becomes an inline flex row; the
+ * cell stays a table cell, since making it a flex container would take it out
+ * of the table's column layout.
+ */
+.lfg-table td > form { display:inline-flex; align-items:center; gap:6px; vertical-align:middle;
+    margin:2px 6px 2px 0; }
+
+/*
+ * Inline edit row. Each API credential occupies two rows, a summary and the
+ * form that edits it; drawn plainly they read as two unrelated records, and the
+ * form has no heading naming which credential it belongs to. The pair is joined
+ * by dropping the rule between them and marking the form row with an edge.
+ */
+.lfg-table td.lfg-shade { background:var(--lfg-inset);
+    box-shadow:inset 3px 0 0 var(--lfg-accent-edge); padding-top:10px; padding-bottom:10px; }
+.lfg-table tbody tr:has(> td.lfg-shade):hover { background:transparent; }
+.lfg-table tbody tr:has(+ tr > td.lfg-shade) > td { border-bottom:0; }
+
+/* Empty state, rendered in place of rows when a query returns nothing. */
+.lfg-empty { padding:34px 16px; text-align:center; color:var(--lfg-quiet); font-size:13px; }
+.lfg-empty strong { display:block; color:var(--lfg-ink); font-size:14px; font-weight:600;
+    margin-bottom:4px; }
+
+/* Dashboard status ribbon: whether anything needs attention. Two variants,
+   distinguished by a dot as well as by background, so state is not colour alone. */
+.lfg-ribbon { display:flex; align-items:center; gap:12px; padding:15px 18px;
+    border-radius:var(--lfg-radius); border:1px solid var(--lfg-rule);
+    background:var(--lfg-surface); box-shadow:var(--lfg-lift); margin-bottom:18px; }
+.lfg-ribbon--clear { border-color:var(--lfg-accent-edge); background:var(--lfg-accent-tint); }
+.lfg-ribbon--attention { border-color:#f0e3c2; background:#fdf9ef; }
+
+.lfg-ribbon-dot { width:10px; height:10px; border-radius:50%; flex:0 0 10px; }
+.lfg-ribbon--clear .lfg-ribbon-dot { background:var(--lfg-ok);
+    box-shadow:0 0 0 4px rgba(15,122,82,.14); }
+.lfg-ribbon--attention .lfg-ribbon-dot { background:var(--lfg-warn);
+    box-shadow:0 0 0 4px rgba(138,100,18,.13); }
+.lfg-ribbon-text { font-size:14px; color:var(--lfg-ink); }
+.lfg-ribbon-text strong { font-weight:650; }
+
+/* Outstanding-task list. Severity is carried by a coloured left border rather
+   than by wording, leaving each row free to describe the task itself. */
+.lfg-todo { list-style:none; margin:0; padding:0; }
+.lfg-todo li { display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:13px 16px 13px 13px; border-bottom:1px solid var(--lfg-rule-soft); font-size:13px;
+    border-left:3px solid transparent; }
+.lfg-todo li:last-child { border-bottom:0; }
+.lfg-todo li.is-warn { border-left-color:var(--lfg-warn); }
+.lfg-todo li.is-bad  { border-left-color:var(--lfg-bad); }
+.lfg-todo .lfg-todo-what { color:var(--lfg-ink); font-weight:600; }
+.lfg-todo .lfg-todo-why { color:var(--lfg-quiet); font-size:12px; margin-left:7px; }
+
+/*
+ * Metrics strip. Inset tiles rather than cells split by rules, which broke when
+ * a row wrapped. Values use the interface face with tabular figures, not
+ * monospace: a count is a quantity to size up, not a string to compare.
+ *
+ * A tile lifts on hover only when it contains a link, so the readings that lead
+ * somewhere are discoverable without implying the same of those that do not.
+ */
+.lfg-readings { display:flex; flex-wrap:wrap; gap:10px; padding:16px; }
+.lfg-reading { flex:1 1 130px; min-width:130px; padding:12px 14px; background:var(--lfg-inset);
+    border:1px solid var(--lfg-rule-soft); border-radius:var(--lfg-radius-sm); }
+.lfg-reading .v { font-size:24px; font-weight:700; line-height:1.15; letter-spacing:-.02em;
+    color:var(--lfg-ink); font-variant-numeric:tabular-nums; }
+.lfg-reading .v a { color:inherit; text-decoration:none; }
+.lfg-reading .v a:hover { color:var(--lfg-accent-bright); text-decoration:none; }
+
+.lfg-reading:has(a) { cursor:pointer; transition:border-color .12s ease, background-color .12s ease; }
+.lfg-reading:has(a):hover { background:var(--lfg-surface); border-color:var(--lfg-accent-edge); }
+.lfg-reading .l { font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--lfg-quiet); margin-top:5px; }
+.lfg-reading--ok   .v, .lfg-reading--ok   .v a { color:var(--lfg-ok); }
+.lfg-reading--bad  .v, .lfg-reading--bad  .v a { color:var(--lfg-bad); }
+.lfg-reading--warn .v, .lfg-reading--warn .v a { color:var(--lfg-warn); }
+
+/* A zero reading is de-emphasised: nothing to act on is not an achievement. */
+.lfg-reading--zero { background:transparent; }
+.lfg-reading--zero .v, .lfg-reading--zero .v a { color:#9aa5b1; font-weight:500; }
+
+/*
+ * Page tabs, as a segmented control on an inset track. The console is a set of
+ * peer views, not a stack of sheets. The count badge is amber rather than the
+ * accent: it is a backlog waiting on someone, which is the opposite claim.
+ */
+.lfg-nav { margin:0 0 18px; padding:4px; list-style:none; display:inline-flex; flex-wrap:wrap;
+    gap:2px; max-width:100%;
+    background:var(--lfg-inset); border:1px solid var(--lfg-rule); border-radius:var(--lfg-radius); }
+.lfg-nav li { margin:0; }
+.lfg-nav a { display:flex; align-items:center; gap:6px; padding:7px 13px; font-size:13px;
+    font-weight:500; color:var(--lfg-quiet); text-decoration:none;
+    border:1px solid transparent; border-radius:var(--lfg-radius-sm); }
+.lfg-nav a:hover { color:var(--lfg-ink); background:rgba(255,255,255,.7); text-decoration:none; }
+.lfg-nav .is-active a { color:var(--lfg-ink); font-weight:600; background:var(--lfg-surface);
+    border-color:var(--lfg-rule); box-shadow:var(--lfg-lift); }
+
+.lfg-nav .lfg-count { display:inline-block; min-width:18px; padding:0 5px; font-size:10px;
+    font-weight:700; line-height:16px; text-align:center; border-radius:var(--lfg-radius-pill);
+    background:#fdf6e6; color:var(--lfg-warn); border:1px solid #f0e3c2; }
+
+/* ---------------------------------------------------------------------------
+   Bootstrap overrides, scoped to .lfg-console
+   --------------------------------------------------------------------------- */
+
+/*
+ * Buttons. Colour follows consequence:
+ *   .btn-primary       the constructive action a form or panel exists to perform
+ *   .lfg-btn--caution  reaches outside this screen and cannot be taken back
+ *   .btn-danger        destroys a record
+ *   .lfg-btn--route    navigates elsewhere and performs nothing
+ *   .btn-default       everything else
+ */
+.lfg-console .btn { border-radius:var(--lfg-radius-sm); font-size:13px; font-weight:500;
+    padding:7px 14px; border:1px solid transparent; box-shadow:none; text-shadow:none;
+    transition:background-color .12s ease, border-color .12s ease, color .12s ease; }
+.lfg-console .btn-sm, .lfg-console .btn-xs { border-radius:6px; }
+.lfg-console .btn-sm { font-size:12px; padding:5px 11px; }
+.lfg-console .btn-xs { font-size:11.5px; padding:3px 9px; font-weight:500; }
+
+/* The secondary button's border does the whole job of separating it from the
+   page, so it is drawn well darker than a rule - at hairline weight it was
+   invisible against the inset ground of a panel footer. */
+.lfg-console .btn-default { background:var(--lfg-surface); border-color:#c3ccd7;
+    color:var(--lfg-ink); box-shadow:var(--lfg-lift); }
+.lfg-console .btn-default:hover, .lfg-console .btn-default:focus {
+    background:var(--lfg-inset); border-color:#93a1b2; color:var(--lfg-ink); }
+
+.lfg-card > .panel-footer .btn-default { border-color:#b4bfcc; }
+.lfg-card > .panel-footer .btn-default:hover,
+.lfg-card > .panel-footer .btn-default:focus { background:var(--lfg-surface); border-color:#8695a8; }
+
+.lfg-console .btn-primary { background:var(--lfg-accent-bright); border-color:var(--lfg-accent-bright);
+    color:#fff; }
+.lfg-console .btn-primary:hover, .lfg-console .btn-primary:focus {
+    background:var(--lfg-accent); border-color:var(--lfg-accent); color:#fff; }
+
+.lfg-console .btn-danger  { background:#b0413e; border-color:#b0413e; color:#fff; }
+.lfg-console .btn-danger:hover,  .lfg-console .btn-danger:focus  { background:#973835; border-color:#973835; }
+.lfg-console .btn-warning { background:#a97a17; border-color:#a97a17; color:#fff; }
+.lfg-console .btn-warning:hover, .lfg-console .btn-warning:focus { background:#8a6412; border-color:#8a6412; }
+
+.lfg-console .btn[disabled], .lfg-console .btn.disabled { opacity:.5; box-shadow:none; }
+
+/* Outlined rather than filled: filled red is the language of deleting a
+   record. This warns, then fills on hover, once the pointer is committed. */
+.lfg-console .lfg-btn--caution { background:var(--lfg-surface); border-color:#e4b7b5;
+    color:var(--lfg-bad); box-shadow:var(--lfg-lift); }
+.lfg-console .lfg-btn--caution:hover, .lfg-console .lfg-btn--caution:focus {
+    background:var(--lfg-bad); border-color:var(--lfg-bad); color:#fff; }
+
+/* Tinted so it is findable in a column of many, never filled - following a
+   link does not deserve the weight of a primary button. */
+.lfg-console .lfg-btn--route { background:var(--lfg-accent-tint);
+    border-color:var(--lfg-accent-edge); color:var(--lfg-accent); font-weight:500; }
+.lfg-console .lfg-btn--route:hover, .lfg-console .lfg-btn--route:focus {
+    background:#d9f2e6; border-color:#a9dcc6; color:var(--lfg-accent); }
+
+/* Fields are inset at rest and white on focus, so the one being typed into is
+   the one that stands out - useful on a long column of identical inputs. */
+.lfg-console .form-control { height:auto; padding:7px 11px; font-size:13px; color:var(--lfg-ink);
+    background:var(--lfg-inset); border:1px solid var(--lfg-rule);
+    border-radius:var(--lfg-radius-sm); box-shadow:none;
+    transition:border-color .12s ease, background-color .12s ease, box-shadow .12s ease; }
+.lfg-console .form-control:focus { background:var(--lfg-surface); border-color:var(--lfg-accent-bright);
+    box-shadow:0 0 0 3px rgba(5,150,105,.13); outline:0; }
+.lfg-console .form-control::placeholder { color:#9aa5b1; }
+.lfg-console .input-sm { padding:5px 9px; font-size:12px; height:auto; }
+
+.lfg-console select.form-control { background-image:none; }
+.lfg-console textarea.form-control { line-height:1.55; }
+
+/* Bootstrap leaves .form-inline controls butted together; the console uses it
+   for filter bars, which need to breathe and to wrap cleanly. A form that is
+   only a button stays inline so two can sit side by side. */
+.lfg-console .form-inline { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+
+.lfg-console .form-inline.lfg-inline { display:inline-flex; vertical-align:middle; }
+.lfg-console .form-inline .form-control { display:inline-block; width:auto; }
+
+/* The free-text field in a filter bar takes whatever the fixed controls beside
+   it leave over. It grows rather than being given a width because the selects
+   next to it are sized by their longest option. 220px is a floor: below it the
+   bar wraps and the field takes its own row. */
+.lfg-console .form-inline .form-control.lfg-grow { flex:1 1 220px; width:auto; min-width:0; }
+
+.lfg-console .control-label { font-size:12.5px; font-weight:600; color:var(--lfg-ink-soft);
+    padding-top:8px; }
+
+/* Field descriptions, set smaller and tighter than the control they explain
+   and placed under it: read the label, then the value, then the reason. */
+.lfg-console .help-block { font-size:11.5px; color:var(--lfg-quiet); margin:6px 0 0;
+    line-height:1.55; }
+.lfg-console .form-group { margin-bottom:16px; }
+
+.lfg-console .checkbox-inline { font-size:13px; color:var(--lfg-ink-soft);
+    padding-left:24px; margin-right:18px; }
+/* Checkboxes are drawn rather than left to the platform, which sizes and
+   aligns them differently on every OS and gives no hit area beyond the box.
+   The tick is a rotated rectangle with two borders, so it inherits colour and
+   needs no icon font. */
+.lfg-console input[type="checkbox"], .lfg-console input[type="radio"] {
+    appearance:none; -webkit-appearance:none; position:relative; flex:0 0 auto;
+    width:16px; height:16px; margin:0 6px 0 0; vertical-align:-3px; cursor:pointer;
+    background:var(--lfg-surface); border:1px solid #cbd5e1; border-radius:4px;
+    transition:background-color .12s ease, border-color .12s ease; }
+.lfg-console input[type="radio"] { border-radius:50%; }
+.lfg-console .checkbox-inline input[type="checkbox"],
+.lfg-console .checkbox-inline input[type="radio"] { position:absolute; margin-left:-24px;
+    margin-top:1px; }
+.lfg-console input[type="checkbox"]:hover, .lfg-console input[type="radio"]:hover {
+    border-color:var(--lfg-accent-bright); }
+.lfg-console input[type="checkbox"]:checked, .lfg-console input[type="radio"]:checked {
+    background:var(--lfg-accent-bright); border-color:var(--lfg-accent-bright); }
+.lfg-console input[type="checkbox"]:checked::after { content:""; position:absolute;
+    left:5px; top:2px; width:4px; height:8px; border:solid #fff;
+    border-width:0 2px 2px 0; transform:rotate(45deg); }
+.lfg-console input[type="radio"]:checked::after { content:""; position:absolute;
+    left:4px; top:4px; width:6px; height:6px; border-radius:50%; background:#fff; }
+.lfg-console input[type="checkbox"]:disabled, .lfg-console input[type="radio"]:disabled {
+    opacity:.5; cursor:default; }
+
+/* Alerts: flat tints with a coloured left edge, instead of Bootstrap's uniform
+   border which gave every alert the same weight regardless of what it said. */
+.lfg-console .alert { padding:13px 16px; font-size:13px; border:1px solid var(--lfg-rule);
+    border-left-width:3px; border-radius:var(--lfg-radius); margin-bottom:18px; }
+.lfg-console .alert-info    { background:#f2f7fb; border-color:#d3e2ee; border-left-color:var(--lfg-wait); color:#2c4c63; }
+.lfg-console .alert-success { background:var(--lfg-accent-tint); border-color:var(--lfg-accent-edge); border-left-color:var(--lfg-ok); color:#14533a; }
+.lfg-console .alert-warning { background:#fdf9ef; border-color:#f0e3c2; border-left-color:var(--lfg-warn); color:#6b4e0e; }
+.lfg-console .alert-danger  { background:#fbeeed; border-color:#f0d5d3; border-left-color:var(--lfg-bad); color:#8c3331; }
+
+.lfg-console code { background:rgba(15,23,42,.05); color:var(--lfg-ink-soft); padding:2px 5px;
+    border-radius:4px; font-family:var(--lfg-mono); font-size:12px; }
+.lfg-console .alert code { color:inherit; }
+
+/*
+ * Emphasis inside a sentence assembled from separate translated strings.
+ *
+ * The notes are built as "<strong>Lead-in</strong>{$string}" with no space in
+ * the markup: a leading or trailing space inside a translatable phrase does not
+ * survive most translation tooling, so the words ran together on screen. The
+ * gap is restored here, where no translator can lose it.
+ */
+.lfg-console .alert > strong:first-child { margin-right:4px; }
+.lfg-console .alert strong:not(:first-child) { margin:0 3px; }
+.lfg-console em { margin:0 3px; font-style:italic; }
+
+.lfg-console pre { padding:11px 13px; font-family:var(--lfg-mono); font-size:12px;
+    color:var(--lfg-ink-soft); background:var(--lfg-inset); border:1px solid var(--lfg-rule);
+    border-radius:var(--lfg-radius-sm); }
+
+/* Bootstrap sets a colour on .alert and lets it inherit into every descendant,
+   so a button inside one is drawn in the alert's colour on its own background. */
+.lfg-console .alert .btn-primary { color:#fff; }
+.lfg-console .alert .btn-default { color:var(--lfg-ink-soft); }
+
+.lfg-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px;
+    flex-wrap:wrap; }
+
+/* A section reached by its anchor is marked briefly, so a jump between two
+   that look alike still confirms something moved. */
+.lfg-console [id^="set-"]:target { border-color:var(--lfg-accent-edge);
+    box-shadow:0 0 0 3px rgba(5,150,105,.10); }
+
+/*
+ * Save bar for a long form, pinned to the bottom of the viewport while the form
+ * is on screen. Sticky rather than fixed, so it leaves with the form instead of
+ * hovering over the panels below, which are separate forms with their own
+ * buttons. The button is weighted as the one control that commits work.
+ */
+.lfg-save-bar { position:sticky; bottom:0; z-index:5; display:flex; align-items:center;
+    gap:12px; flex-wrap:wrap; margin:0 0 18px; padding:14px 16px;
+    background:rgba(255,255,255,.94); backdrop-filter:blur(6px);
+    border:1px solid var(--lfg-rule); border-radius:var(--lfg-radius);
+    box-shadow:var(--lfg-lift-lg); }
+.lfg-save-bar .lfg-muted { font-size:12px; }
+
+.lfg-save-bar .btn-primary { padding:9px 22px; font-size:13.5px; font-weight:600;
+    letter-spacing:.01em; box-shadow:0 1px 2px rgba(4,120,87,.28); }
+.lfg-save-bar .btn-primary:hover, .lfg-save-bar .btn-primary:focus {
+    box-shadow:0 3px 8px -1px rgba(4,120,87,.36); }
+.lfg-save-bar .btn-primary:active { box-shadow:0 1px 1px rgba(4,120,87,.3); }
+.lfg-footnote { font-size:12px; color:var(--lfg-quiet); margin-top:16px; }
+.lfg-copy { cursor:pointer; }
+
+/* Respect an operating-system preference for reduced motion. */
+@media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+
+/*
+ * Layout utilities.
+ *
+ * These exist so the templates carry no style attributes, which keeps the
+ * markup compatible with a Content-Security-Policy that forbids inline styles.
+ * Named for what they do rather than where they are used: the widths are
+ * arbitrary column sizes and naming them for a purpose would attach a meaning
+ * they do not have.
+ */
+.lfg-inline { display:inline; }
+.lfg-mt8 { margin-top:8px; }
+.lfg-ib { display:inline-block; }
+.lfg-m0 { margin:0; }
+.lfg-mb0 { margin-bottom:0; }
+.lfg-mb-sm { margin-bottom:10px; }
+.lfg-mb-md { margin-bottom:12px; }
+.lfg-mt-xs { margin-top:7px; }
+.lfg-mt-sm { margin-top:8px; }
+.lfg-mt-md { margin-top:10px; }
+.lfg-ml-sm { margin-left:6px; }
+.lfg-ml-md { margin-left:10px; }
+.lfg-my-sm { margin:8px 0; }
+.lfg-mx-sm { margin:0 8px; }
+.lfg-note-inset { margin:0 16px 16px; }
+.lfg-pb0 { padding-bottom:0; }
+.lfg-text-sm { font-size:13px; }
+.lfg-shade { background:var(--lfg-inset); }
+.lfg-bare { background:transparent; margin-bottom:0; box-shadow:none; }
+.lfg-break { word-break:break-all; }
+.lfg-mw220 { max-width:220px; }
+.lfg-mw420 { max-width:420px; }
+.lfg-w24 { width:24px; }
+.lfg-w110 { width:110px; }
+.lfg-w120 { width:120px; }
+.lfg-w150 { width:150px; }
+.lfg-w220 { width:220px; }
+.lfg-w260 { width:260px; }
+.lfg-w35p { width:35%; }
+.lfg-w48p { width:48%; }
+
+.lfg-card > .panel-heading > .lfg-muted { margin-left:6px;
+    font-size:12px; font-weight:400; line-height:1.45; color:var(--lfg-quiet); }
+
+@media (max-width:767px) {
+    .lfg-card { overflow-x:auto; }
+    .lfg-masthead-title { font-size:19px; }
+    .lfg-reading { flex-basis:calc(50% - 5px); }
+}

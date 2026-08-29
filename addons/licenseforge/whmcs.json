@@ -1,0 +1,38 @@
+{
+    "schema": "1.0",
+    "type": "whmcs-addons",
+    "name": "licenseforge",
+    "version": "1.0.0",
+    "category": "utilities",
+    "description": {
+        "name": "LicenseForge",
+        "tagline": "Sell and enforce software licenses from WHMCS.",
+        "long": "LicenseForge turns any WHMCS product into a licensed software product. Assign the License Forge provisioning module to a product and every licensing rule lives on that product's own Module Settings tab, next to its pricing.\n\nCustomers order as they always have. LicenseForge issues the key, binds it to their installation, answers your software when it calls home, and stops working when they stop paying.\n\nThis addon holds the licensing engine, the public API and the staff console. It is installed alongside the License Forge provisioning module, which is what makes an individual product licensed.",
+        "features": [
+            "Licenses follow the billing cycle the customer actually bought",
+            "Two-call API: activate once, then check in, signed with HMAC-SHA256",
+            "Offline validation with Ed25519 or RSA signed payloads",
+            "Bind by domain, IP, install directory or machine ID",
+            "Per-license feature entitlements and version rules",
+            "Customer self-service resets, with limits and cooldown",
+            "Administrative holds, so a deliberate suspension is never silently undone",
+            "Abuse detection for key sharing, domain churn and enumeration",
+            "Release downloads gated on license state",
+            "Eight customer email templates installed into WHMCS",
+            "Full audit trail of who changed what, from where"
+        ]
+    },
+    "logo": {
+        "filename": "logo.png"
+    },
+    "support": {
+        "support_url": "https:\/\/fasthive.com\/support",
+        "docs_url": "https:\/\/fasthive.com\/docs\/licenseforge"
+    },
+    "authors": [
+        {
+            "name": "Ahmad Abu Assab (Fast Hive)",
+            "homepage": "https:\/\/fasthive.com"
+        }
+    ]
+}

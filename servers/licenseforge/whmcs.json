@@ -1,0 +1,33 @@
+{
+    "schema": "1.0",
+    "type": "whmcs-servers",
+    "name": "licenseforge",
+    "version": "1.2.0",
+    "category": "provisioning",
+    "description": {
+        "name": "License Forge",
+        "tagline": "Makes a WHMCS product a licensed software product.",
+        "long": "Assign this module to a product and that product becomes licensed. Every licensing rule, term, activation limits, what a license is tied to, version rules and entitlements is configured on the product's own Module Settings tab, and anything left blank falls back to a global default.\n\nWhen a customer orders, a license is issued automatically and appears on their product details page in the client area, where they can copy the key, deactivate an installation or reset the license to move it.\n\nRequires the LicenseForge addon module, which holds the licensing engine and the staff console.",
+        "features": [
+            "Licensing configured on the product, beside its pricing",
+            "Term follows the billing cycle, or is lifetime, or a fixed number of days",
+            "Suspends and restores the license with the service",
+            "License panel on the customer's own product page",
+            "Send any licensing email from the product page",
+            "Reissue and reset activations from the service page"
+        ]
+    },
+    "logo": {
+        "filename": "logo.png"
+    },
+    "support": {
+        "support_url": "https:\/\/fasthive.com\/support",
+        "docs_url": "https:\/\/fasthive.com\/docs\/licenseforge"
+    },
+    "authors": [
+        {
+            "name": "Ahmad Abu Assab (Fast Hive)",
+            "homepage": "https:\/\/fasthive.com"
+        }
+    ]
+}
