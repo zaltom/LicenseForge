@@ -125,7 +125,7 @@ Keep the `api/` path reachable because it is the public licensing endpoint.
 
 > **Security:** Never expose `storage/master-key.php`, signing keys, API secrets, or application internals over HTTP.
 
-### 3. Activate the addon
+### 3. Activate the addon.
 
 In WHMCS:
 
